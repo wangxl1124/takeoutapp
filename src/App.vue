@@ -1,32 +1,39 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+  <div style="width:100%;height:100%">
+    <index v-show="showLoad" />
+    <img id="loadimg" v-show="!showLoad" src="./assets/imgs/load.jpg" />
   </div>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+<script>
+import index from "./pages/Index";
+export default {
+  data(){
+    return {
+     showLoad:false
     }
+  },
+  components: {
+    index
+  },
+  created(){
+    setTimeout(()=>{
+        this.showLoad=true
+      },1000)
   }
+};
+</script>
+
+<style lang="scss">
+* {
+  margin: 0;
+  padding: 0;
+}
+#loadimg {
+  width: 100%;
+}
+html,
+body {
+  height: 100%;
 }
 </style>

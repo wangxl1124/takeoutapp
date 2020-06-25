@@ -4,26 +4,26 @@
       <div class="model">
         <div class="top">
           <div class="img_div">
-            <img :src="list.avatar" alt />
+            <img :src="sellerlist.avatar" alt />
           </div>
           <div class="head_title">
             <div class="title">
               <img src="../assets/imgs/brand@2x.png" alt />
-              <h2>{{list.name}}</h2>
+              <h2>{{sellerlist.name}}</h2>
             </div>
-            <p>{{list.description}} / {{list.deliveryTime}}分钟送达</p>
+            <p>{{sellerlist.description}} / {{sellerlist.deliveryTime}}分钟送达</p>
             <p class="activity">
               <img src="../assets/imgs/decrease_1@2x.png" alt />
-              <span>{{list.supports[2]}}</span>
+              <span>{{supportlist[2]}}</span>
             </p>
           </div>
         </div>
       </div>
-      <van-notice-bar left-icon="volume-o" :text="list.bulletin" />
+      <van-notice-bar left-icon="volume-o" :text="sellerlist.bulletin" />
     </div>
-    <ul class="nav">
-      <li>
-        <router-link to="/">商品</router-link>
+    <ul class="nav" >
+      <li >
+        <router-link to="/" >商品</router-link>
       </li>
       <li>
         <router-link to="/evaluate">评价</router-link>
@@ -36,50 +36,79 @@
     <router-view class="content"></router-view>
 
     <transition name="slide-fade">
-      <div class="shopcar_model" v-show="shopCar"></div>
+      <div class="shopcar_model" v-show="shopCar">
+        <shopcar />
+      </div>
     </transition>
 
     <div class="footer">
-      <div class="round">
-        <div class="icon">
-          <van-icon name="shopping-cart" color="#808589" size="30px" @click="shopCar=!shopCar" />
-        </div>
+      <div class="icon" @click="shopCar=!shopCar">
+        <img :src="iconsrc" >
       </div>
       <h2>
         ￥
-        <span>0</span>
+        <span>{{totalPrice}}</span>
       </h2>
       <p>
         另需配送费￥
-        <span>{{list.deliveryPrice}}</span>元
+        <span>{{sellerlist.deliveryPrice}}</span>元
       </p>
-      <button>￥{{list.minPrice}}起送</button>
+      <button>￥{{sellerlist.minPrice}}起送</button>
     </div>
   </div>
 </template>
 
 <script>
-import { API_GET_SELLER,SERVER_IP } from "@/api/apis";
+import { API_GET_SELLER, SERVER_IP } from "@/api/apis";
+import shopcar from "./Shopcar";
 export default {
   data() {
     return {
       // showboard: false,
       shopCar: false,
-      list: {}
+      supportlist: [],
+      
     };
+  },
+  components: {
+    shopcar    
   },
   created() {
     API_GET_SELLER().then(res => {
-      let obj = res.data.data;
-      obj.avatar = obj.avatar.replace('http://127.0.0.1:5000',SERVER_IP)
-      this.list = obj
-      //console.log(this.list);
-      //this.showLoad=true
+      this.supportlist = res.data.data.supports;
+      let sellobj = res.data.data;
+      //console.log(sellobj);
+      
+      sellobj.avatar = sellobj.avatar.replace(
+        "http://127.0.0.1:5000",
+        SERVER_IP
+      );
+      this.$store.commit("getseller", sellobj);
+      //console.log(sellobj);
+
+     
     });
+  
   },
-  methods: {
-    clickCar() {
-      this.value = true;
+  computed: {
+    // shopcarlist() {
+    //   return this.$store.getters.shopcarlist;
+    // },
+    totalPrice() {
+      let total = 0;
+      for (let obj of this.$store.getters.shopcarlist) {
+        total += obj.num * obj.price
+      }
+      return total.toFixed(2)
+    },
+    sellerlist(){
+      return this.$store.state.sellerlist;
+    },
+    iconsrc(){
+      if(this.$store.getters.shopcarlist.length>0)
+        return require('@/assets/imgs/shop_car_light.png')
+
+       return require('@/assets/imgs/shop_icon.png') 
     }
   }
 };
@@ -98,6 +127,9 @@ export default {
   opacity: 0;
 }
 
+.coloractive{
+  color:#f60
+}
 a {
   color: #4b565c;
 }
@@ -170,10 +202,10 @@ a {
         }
       }
     }
-    .van-notice-bar{
+    .van-notice-bar {
       height: 25px;
-      background-color:rgba($color: #000000, $alpha: 0.8);
-      color:#b6b6b9;
+      background-color: rgba($color: #000000, $alpha: 0.8);
+      color: #b6b6b9;
     }
   }
   .nav {
@@ -189,10 +221,11 @@ a {
 
   .shopcar_model {
     width: 100%;
-    height: 200px;
+    max-height: 150px;
     background-color: #fff;
     position: fixed;
     bottom: 60px;
+    overflow: auto;
   }
   .footer {
     width: 100%;
@@ -203,34 +236,23 @@ a {
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    
+    .icon{
+      position: fixed;
+      left:20px;
+      bottom:6px;
 
-    .round {
-      width: 70px;
-      height: 70px;
-      background-color: #131d26;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: absolute;
-      top: -12px;
-      left: 15px;
-      .icon {
-        width: 50px;
-        height: 50px;
-        background-color: #2b343d;
-        border-radius: 50%;
-        text-align: center;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+      img{
+        width:60px; 
       }
     }
     h2 {
       color: #929396;
       border-right: 1px solid #262e39;
-      padding-right: 10px;
+
       margin-right: 10px;
+      font-size: 14px;
+      width: 60px;
     }
     p {
       font-size: 14px;

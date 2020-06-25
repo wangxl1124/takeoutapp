@@ -1,5 +1,5 @@
 import axios from 'axios'
-export const SERVER_IP = 'http://192.168.0.53:5000'
+export const SERVER_IP = 'http://127.0.0.1:5000'
 
 axios.defaults.baseURL = SERVER_IP
 

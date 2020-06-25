@@ -7,27 +7,25 @@
           <li
             :class="{titleActive: curSelect==index}"
             @click="clickleft(index)"
-            v-for="(item,index) in list"
+            v-for="(item,index) in goodslist"
             :key="index"
-          >{{list[index].name}}</li>
+          >{{goodslist[index].name}}</li>
         </ul>
       </div>
     </div>
     <!-- 右边 -->
     <div id="right_box" class="listcontent">
       <div>
-        <div :id="index" v-for="(item,index) in list" :key="index">
-          <h4 :id="index">{{list[index].name}}</h4>
-          <div v-for="(i,index) in item.foods" :key="index" class="foods">
-            <van-card :price="i.price" :desc="i.goodsDesc" :title="i.name" :thumb="i.imgUrl" />
-            <div class="addfood" >
-              <!-- <van-stepper theme="round" button-size="22" disable-input show-minus /> -->
-              <!-- <van-icon name="add" size="25px" color="#FFC641" /> -->
+        <div :id="index" v-for="(item,index) in goodslist" :key="index">
+          <h4 :id="index">{{goodslist[index].name}}</h4>
+          <div v-for="(child,index) in item.foods" :key="index" class="foods">
+            <van-card :price="child.price.toFixed(2)" :desc="child.goodsDesc" :title="child.name" :thumb="child.imgUrl" />
+            <div class="addfood">
               <span class="hid_span">
-                <button class="red_btn">-</button>
-                <span>1</span>
+                <button v-show="child.num>0" class="red_btn" @click="clickChange(-1,child.id)">-</button>
+                <span v-show="child.num>0">{{child.num}}</span>
               </span>
-              <button class="add_btn" @click="clickAdd">+</button>
+              <button class="add_btn" @click="clickChange(1,child.id)">+</button>
             </div>
           </div>
         </div>
@@ -37,30 +35,35 @@
 </template>
 
 <script>
-import { API_GET_GOODLIST, SERVER_IP } from "@/api/apis";
+import { API_GET_GOODLIST,SERVER_IP } from "@/api/apis";
 import BScroll from "better-scroll";
 export default {
   data() {
     return {
-      list: [], //商品列表
       curSelect: 0 //定义变量保存默认激活样式索引
     };
   },
   created() {
+    //获取商品数据
     API_GET_GOODLIST().then(res => {
-      let obj = res.data.goodsList;
-     
-      for (let i = 0; i < obj.length; i++) {
-        for (let j = 0; j < obj[i].foods.length; j++) {
-          obj[i].foods[j].imgUrl = obj[i].foods[j].imgUrl.replace(
+      let arr = res.data.goodsList;
+      for (let obj of arr) {
+        for (let child of obj.foods) {
+          child.num = 0;  //给数据添加一个num属性 
+          child.imgUrl = child.imgUrl.replace(
             "http://127.0.0.1:5000",
             SERVER_IP
-          );         
+          )
+          //console.log(child.imgUrl);
         }
       }
-      this.list=obj
-      //console.log(this.list)
+     
+      this.$store.commit("getgoods", arr);
+   // console.log(this.$store.state.goodslist);
+      
     });
+
+
   },
   mounted() {
     //初始化左边滚动面板
@@ -93,7 +96,7 @@ export default {
     getHeight() {
       let heightarr = []; //定义数组保存每个div的距离
       let totalheight = 0;
-      for (let i = 0; i < this.list.length; i++) {
+      for (let i = 0; i < this.goodslist.length; i++) {
         //获取每个id
         let divheight = document.getElementById(i).offsetHeight;
         // console.log(divheight)
@@ -108,6 +111,9 @@ export default {
       //console.log(heightarr);
 
       return heightarr;
+    },
+    goodslist(){
+        return this.$store.state.goodslist
     }
   },
   methods: {
@@ -117,8 +123,9 @@ export default {
       this.right.scrollToElement(document.getElementById(index), 600);
     },
 
-    clickAdd() {
-      document.querySelector(".hid_span").style.display = "block";
+    clickChange(val, id) {
+       //console.log(val, id);
+      this.$store.commit('changeGoodsNum',{val,id})
     }
   }
 };
@@ -177,7 +184,6 @@ export default {
           font-size: 16px;
         }
         .hid_span {
-          display: none;
           .red_btn {
             background-color: #fff;
             border: 1px solid #ccc;

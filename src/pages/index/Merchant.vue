@@ -1,13 +1,13 @@
 <template>
   <div class="merchant">
     <div class="introduce_div">
-      <div class="eva_top" v-for="(item,index) in list" :key="index">
+      <div class="eva_top" v-for="item in list" :key="item.name">
         <h4>{{item.name}}</h4>
-        
+
         <div class="estimate">
           <van-rate v-model="numvalue" />
           <p>
-            <span>({{item.score}})</span>
+            <span>(666)</span>
             <span>
               月售
               <span>{{item.sellCount}}</span>单
@@ -16,6 +16,7 @@
           <p v-show="showcoll" class="coll_p">已收藏</p>
         </div>
       </div>
+
       <div class="collect_div" @click="clickcoll">
         <van-rate
           v-model="collectval"
@@ -74,7 +75,7 @@
       <li>商家信息</li>
       <li>该商家支持开发票，请在下单时填写好发票抬头</li>
       <li>地址：成都市天府新谷</li>
-      <li>营业时间：{{item.date[0]}}-{{item.date[1]}}</li>
+      <li>营业时间：{{time[0]}}-{{time[1]}}</li>
     </ul>
   </div>
 </template>
@@ -84,17 +85,17 @@ import { API_GET_SELLER } from "@/api/apis";
 export default {
   data() {
     return {
-      numvalue: 5,
+      numvalue: 4,
       collectval: 0,
       collectflag: false,
       showcoll: false,
       list: [],
-      
+      time:[], //营业时间
     };
   },
   created() {
     API_GET_SELLER().then(res => {
-      // console.log( res.data);
+       this.time = res.data.data.date
       this.list.push(res.data.data);
       //console.log(this.list);
     });
@@ -113,24 +114,25 @@ export default {
     },
     showPopup() {
       this.show = true;
-    }
+    },
+
   }
 };
 </script>
 
 <style lang="scss" scoped>
 .wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
 
-  .block {
-    width: 120px;
-    height: 120px;
-    background-color: #fff;
-  }
+.block {
+  width: 120px;
+  height: 120px;
+  background-color: #fff;
+}
 .merchant {
   background-color: #f4f5f7;
   overflow: hidden;
@@ -148,99 +150,98 @@ export default {
       padding: 10px 0;
       box-sizing: border-box;
     }
-      }
-      .estimate {
-        display: flex;
-        align-items: center;
-        margin-top: 5px;
-        position: relative;
-        p {
-          margin-left: 10px;
-          > span {
-            margin-right: 10px;
-          }
-        }
-        .coll_p {
-          position: absolute;
-          right: 16px;
-        }
+  }
+  .estimate {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+    position: relative;
+    p {
+      margin-left: 10px;
+      > span {
+        margin-right: 10px;
       }
     }
-    .collect_div {
+    .coll_p {
       position: absolute;
-      right: 47px;
-      top: 6px;
-      text-align: center;
-    }
-    .price {
-      display: flex;
-      justify-content: space-between;
-      .price_div {
-        width: 100px;
-        text-align: center;
-        font-size: 15px;
-        margin-top: 10px;
-        .send {
-          color: #a0a3a6;
-        }
-        span {
-          font-size: 26px;
-        }
-      }
-      .bor_right {
-        margin-top: 10px;
-        border-right: 1px solid #ccc;
-      }
-    }
-  
-  .activity {
-    margin-top: 20px;
-    border-bottom: 1px solid #ccc;
-    border-top: 1px solid #ccc;
-    background-color: #fff;
-    padding: 0 20px;
-    li {
-      padding: 10px 0;
-      p:nth-child(2) {
-        margin-bottom: 12px;
-      }
-      li {
-        border-top: 1px solid #ccc;
-      }
+      right: 16px;
     }
   }
-  .live_pic {
-    border-top: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
-    margin-top: 20px;
-    background-color: #fff;
-    padding: 0 20px;
-    .title {
-      font-size: 18px;
-      line-height: 40px;
+}
+.collect_div {
+  position: absolute;
+  right: 47px;
+  top: 6px;
+  text-align: center;
+}
+.price {
+  display: flex;
+  justify-content: space-between;
+  .price_div {
+    width: 100px;
+    text-align: center;
+    font-size: 15px;
+    margin-top: 10px;
+    .send {
+      color: #a0a3a6;
     }
-    .imgs {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-      img {
-        margin-bottom: 5px;
-      }
+    span {
+      font-size: 26px;
     }
   }
-  .mer_msg {
-    padding: 0 20px;
-    margin-top: 20px;
-    background-color: #fff;
-    border-top: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
+  .bor_right {
+    margin-top: 10px;
+    border-right: 1px solid #ccc;
+  }
+}
+
+.activity {
+  margin-top: 20px;
+  border-bottom: 1px solid #ccc;
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+  padding: 0 20px;
+  li {
+    padding: 10px 0;
+    p:nth-child(2) {
+      margin-bottom: 12px;
+    }
     li {
-      padding: 10px 0;
-      border-bottom: 1px solid #ccc;
+      border-top: 1px solid #ccc;
     }
-    li:last-child {
-      border: none;
+  }
+}
+.live_pic {
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  margin-top: 20px;
+  background-color: #fff;
+  padding: 0 20px;
+  .title {
+    font-size: 18px;
+    line-height: 40px;
+  }
+  .imgs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    img {
+      margin-bottom: 5px;
     }
-  
+  }
+}
+.mer_msg {
+  padding: 0 20px;
+  margin-top: 20px;
+  background-color: #fff;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  li {
+    padding: 10px 0;
+    border-bottom: 1px solid #ccc;
+  }
+  li:last-child {
+    border: none;
+  }
 }
 </style>

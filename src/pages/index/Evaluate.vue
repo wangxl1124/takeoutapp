@@ -2,7 +2,7 @@
   <div class="evaluate">
     <div class="score">
       <div>
-        <p>3.9</p>
+        <p>4.3</p>
         <p>综合评分</p>
         <span>高于周边商家69.2%</span>
       </div>
@@ -25,24 +25,26 @@
 
     <div class="evaluates">
       <div>
-        <button>全部</button>
-        <button>满意</button>
-        <button>不满意</button>
+        <button @click="clickAll">全部{{alllen}}</button>
+        <button @click="clickChange1">满意{{oklen}}</button>
+        <button @click="clickChange2">不满意{{nolen}}</button>
       </div>
     </div>
 
     <ul class="acceva">
+     
       <li v-for="(item,index) in list" :key="index">
         <div class="headpic">
           <img :src="item.avatar" />
         </div>
-        <div>
+        <div class="evamsg">
           <div class="acctime">
-            <span>{{item.username}}</span>
-            <span>{{new Date(item.rateTime).toLocaleString()}}</span>
+            <p>{{item.username}}</p>
+            <p>{{new Date(item.rateTime).toLocaleString()}}</p>
           </div>
-          <p>
+          <p class="times">
             <van-rate v-model="item.score" />
+            <span>{{item.deliveryTime}}分钟送达</span>
           </p>
           <p>{{item.text}}</p>
         </div>
@@ -56,20 +58,53 @@ import { API_GET_RATINGS, API_GET_SELLER } from "@/api/apis";
 export default {
   data() {
     return {
-      value: 4,
+      value: 4, //服务态度星星
       value1: 4,
-      list: [],
-      timelist:0
+      list: [], //评论数据
+      timelist: 0, //评论时间
+      alllen: 0, //全部评论条数
+      oklen: 0, //满意条数
+      oklenlist:[],
+      nolen: 0, //不满意条数
+      nolenlist:[]
     };
   },
   created() {
     API_GET_RATINGS().then(res => {
       this.list = res.data.data;
-      //console.log(this.list);
+      this.alllen = this.list.length;
+      for (let obj of this.list) {
+        //console.log(obj);
+        if (obj.rateType == 0) {
+          this.oklen++;
+          this.oklenlist.push(obj)
+        } else {
+          this.nolen++;
+          this.nolenlist.push(obj)
+        }
+      }
     });
     API_GET_SELLER().then(res => {
-      this.timelist=res.data.data.deliveryTime
+      this.timelist = res.data.data.deliveryTime;
     });
+  },
+  methods: {
+    clickAll() {
+      //console.log(this.list);
+      API_GET_RATINGS().then(res => {
+        this.list = res.data.data;
+        //console.log(this.list);
+        
+      });
+     },
+    clickChange1() {
+      //console.log(val);
+      
+      this.list = this.oklenlist
+    },
+    clickChange2(){
+      this.list = this.nolenlist
+    }
   }
 };
 </script>
@@ -135,8 +170,10 @@ export default {
   .acceva {
     background-color: #fff;
     padding: 0 20px;
+
     li {
       padding: 20px 0;
+
       border-bottom: 1px solid #ccc;
       display: flex;
       .headpic {
@@ -154,10 +191,22 @@ export default {
           width: 40px;
         }
       }
-      .acctime{
+      .evamsg {
+        flex: 1;
+        .acctime {
+          width: 100%;
           display: flex;
           justify-content: space-between;
           align-items: center;
+        }
+      }
+
+      .times {
+        display: flex;
+        align-items: center;
+        span {
+          margin-left: 5px;
+        }
       }
     }
   }
